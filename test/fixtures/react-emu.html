@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>react-style value tracker emulation</title>
+</head>
+<body>
+<!-- Emulates React's inputValueTracking + ChangeEventPlugin (React 18.3/19.x):
+     - each input/textarea gets an own-property "value" accessor whose setter records the tracker value;
+     - listeners sit on the root container in the BUBBLE phase;
+     - onChange fires only if node.value differs from the tracker (selects: on "change" only);
+     - after each event the controlled value is restored from state (like restoreControlledState),
+       so a change the page did not "see" is reverted in the DOM. -->
+<div id="root">
+  <form id="f" action="/submitted" method="post">
+    <input id="t1" name="t1">
+    <textarea id="t2" name="t2"></textarea>
+    <input id="t3" name="t3" type="password">
+    <select id="s1" name="s1"><option value="">--</option><option value="emu-opt-b-TEST">Beta</option></select>
+    <input id="ctl" name="ctl">
+  </form>
+</div>
+<script>
+(() => {
+  const state = (window.__state = { t1: "", t2: "", t3: "", s1: "", ctl: "" });
+  const changes = (window.__onChange = []);
+  function track(node) {
+    const d = Object.getOwnPropertyDescriptor(node.constructor.prototype, "value");
+    let current = "" + node.value;
+    Object.defineProperty(node, "value", {
+      configurable: true,
+      get() { return d.get.call(this); },
+      set(v) { current = "" + v; d.set.call(this, v); },
+    });
+    Object.defineProperty(node, "value", { enumerable: d.enumerable });
+    node._valueTracker = { getValue: () => current, setValue: (v) => { current = "" + v; } };
+  }
+  function updateValueIfChanged(node) {
+    const t = node._valueTracker;
+    if (!t) return true;
+    const last = t.getValue();
+    const next = node.value;
+    if (next !== last) { t.setValue(next); return true; }
+    return false;
+  }
+  for (const n of document.querySelectorAll("#f input, #f textarea")) track(n);
+  const onEvent = (e) => {
+    const n = e.target;
+    if (!(n.id in state)) return;
+    if (n.localName === "select") {
+      if (e.type === "change") { state[n.id] = n.value; changes.push(n.id + ":" + e.type); }
+      return;
+    }
+    if (updateValueIfChanged(n)) { state[n.id] = n.value; changes.push(n.id + ":" + e.type); }
+    queueMicrotask(() => { if (n.value !== state[n.id]) n.value = state[n.id]; });
+  };
+  const root = document.getElementById("root");
+  root.addEventListener("input", onEvent);
+  root.addEventListener("change", onEvent);
+  // Fixture self-check: a fill through the page's own (tracked) setter must NOT be seen.
+  window.__selfCheck = () => {
+    const ctl = document.getElementById("ctl");
+    ctl.value = "page-setter";
+    ctl.dispatchEvent(new Event("input", { bubbles: true }));
+    return { state: state.ctl, dom: ctl.value };
+  };
+})();
+</script>
+</body>
+</html>

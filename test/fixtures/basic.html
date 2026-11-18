@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>basic form</title>
+<script src="/recorder.js"></script>
+</head>
+<body>
+<form id="f" action="/submitted" method="post">
+  <label>Text <input id="text" name="text"></label>
+  <label>Text 2 <input id="text2" name="text2"></label>
+  <label>Password <input id="pass" name="pass" type="password"></label>
+  <label>Email <input id="email" name="email" type="email"></label>
+  <label>Number <input id="num" name="num" type="number"></label>
+  <label>Area <textarea id="area" name="area"></textarea></label>
+  <select id="selv" name="selv">
+    <option value="">--</option><option value="opt-a-TEST">Alpha</option><option value="opt-b-TEST">Beta</option>
+  </select>
+  <select id="sell" name="sell">
+    <option value="">--</option><option value="code-x1">  Gamma Label  </option><option value="code-x2">Delta Label</option>
+  </select>
+  <select id="selfull" name="selfull"><option value="full-a-TEST">A</option><option value="full-b-TEST">B</option></select>
+  <select id="selfullow" name="selfullow"><option value="full-a-TEST">A</option><option value="full-b-TEST">B</option></select>
+  <select id="selprio" name="selprio">
+    <option value="">--</option><option value="prio-code">Prio-TEST</option><option value="Prio-TEST">Other</option>
+  </select>
+  <input id="prefilled" name="prefilled" value="keep-me">
+  <input id="prefilled-ow" name="prefilledow" value="old-value">
+  <input id="same" name="same" value="SAME-TEST">
+  <input id="hidden" name="hidden" type="hidden" value="hidden-orig">
+  <input id="check" name="check" type="checkbox">
+  <input id="radio" name="radio" type="radio" value="r1">
+  <input id="btn" type="button" value="Btn">
+  <input id="disabled" name="disabled" disabled>
+  <input id="readonly" name="readonly" readonly>
+  <input id="multi1" class="multi"><input id="multi2" class="multi">
+  <input id="numrej" name="numrej" type="number">
+  <input id="numow" name="numow" type="number" value="42">
+  <button id="submit" type="submit">Submit</button>
+</form>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>re-render and reset</title>
+<script src="/recorder.js"></script>
+</head>
+<body>
+<form id="f" action="/submitted" method="post">
+  <span id="slot"><input id="a" name="a" data-gen="1"></span>
+  <input id="b" name="b">
+</form>
+<script>
+  let gen = 1;
+  // A framework re-render that replaces the field element with a fresh one.
+  window.replaceA = () => {
+    const n = document.createElement("input");
+    n.id = "a";
+    n.name = "a";
+    n.dataset.gen = String(++gen);
+    document.getElementById("slot").replaceChildren(n);
+    return gen;
+  };
+  // A framework that programmatically resets the field right after our change event.
+  window.__bResets = 0;
+  document.getElementById("b").addEventListener("change", (e) => {
+    setTimeout(() => { e.target.value = ""; window.__bResets++; }, 30);
+  });
+</script>
+</body>
+</html>

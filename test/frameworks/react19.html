@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>React 19 fixture</title>
+</head>
+<body>
+<div id="root"></div>
+<script src="/fw/cjs-loader.js"></script>
+<script src="/fw/react-app.js"></script>
+<script>
+  // React 19 ships CommonJS builds only; load them with the shim. Mounting happens after the
+  // fetches, i.e. after the content script's first scan, so the observer has to catch the fields.
+  window.loadCjs([
+    ["scheduler", "/vendor/react19/scheduler.production.js"],
+    ["react", "/vendor/react19/react.production.js"],
+    ["react-dom", "/vendor/react19/react-dom.production.js"],
+    ["react-dom/client", "/vendor/react19/react-dom-client.production.js"],
+  ]).then((m) => window.mountReactApp(m.react, (el) => m["react-dom/client"].createRoot(el), "19"),
+    (e) => { window.__loadError = String(e); });
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>spa</title>
+<script src="/recorder.js"></script>
+</head>
+<body>
+<!-- Served for every path under /spa/. window.go() emulates a client-side route change. -->
+<div id="app"><input id="start" name="start"></div>
+<script>
+  window.go = (path, id) => {
+    history.pushState({}, "", path);
+    const app = document.getElementById("app");
+    const i = document.createElement("input");
+    i.id = id;
+    i.className = "dyn";
+    app.replaceChildren(i);
+  };
+</script>
+</body>
+</html>

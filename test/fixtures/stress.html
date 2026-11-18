@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>high-churn stress page</title>
+</head>
+<body>
+<form id="login"><input id="perf-probe" name="probe"></form>
+<p id="counter">0</p>
+<div id="static"></div>
+<div id="churn"></div>
+<script>
+  // ~5000 static nodes, so every rule query walks a realistic DOM.
+  (() => {
+    const s = document.getElementById("static");
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < 1000; i++) {
+      const d = document.createElement("div");
+      d.className = "row r" + (i % 10);
+      const a = document.createElement("span"); a.textContent = "a" + i;
+      const b = document.createElement("em"); b.textContent = "b";
+      const c = document.createElement("input"); c.type = "hidden"; c.name = "h" + i;
+      d.append(a, b, c);
+      frag.append(d);
+    }
+    s.append(frag);
+  })();
+  let sink = 0;
+  // Each tick (MessageChannel task, no timer clamping): 30 element insertions, up to 30 removals,
+  // 30 text updates and one text-only childList change, then a fixed 2 ms slice of busy work counted
+  // in iterations. Throughput = iterations completed in the window.
+  window.runWorkload = (ms) => new Promise((resolve) => {
+    const churn = document.getElementById("churn");
+    const counter = document.getElementById("counter");
+    const ch = new MessageChannel();
+    const start = performance.now();
+    const end = start + ms;
+    let ticks = 0, iters = 0, n = 0, inserted = 0, removed = 0;
+    ch.port1.onmessage = () => {
+      for (let i = 0; i < 30; i++) {
+        const d = document.createElement("div");
+        const sp = document.createElement("span");
+        sp.textContent = "item " + (n++);
+        d.append(sp);
+        churn.append(d);
+        inserted++;
+      }
+      while (churn.childElementCount > 300) { churn.firstElementChild.remove(); removed++; }
+      const kids = churn.children;
+      for (let i = 0; i < 30 && i < kids.length; i++) kids[i].firstChild.firstChild.data = "t" + n + "-" + i;
+      counter.textContent = String(ticks);
+      const sliceEnd = performance.now() + 2;
+      let x = 0;
+      while (performance.now() < sliceEnd) { for (let i = 0; i < 200; i++) x = (x * 31 + i) | 0; iters++; }
+      sink ^= x;
+      ticks++;
+      if (performance.now() < end) ch.port2.postMessage(0);
+      else resolve({ ticks, iters, inserted, removed, elapsed: Math.round(performance.now() - start) });
+    };
+    ch.port2.postMessage(0);
+  });
+</script>
+</body>
+</html>

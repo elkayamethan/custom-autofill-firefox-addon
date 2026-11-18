@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>observer throttle</title>
+</head>
+<body>
+<div id="host"></div>
+<script>
+  // Inserts a new matching field every 10 ms for `ms` and records when each one receives
+  // the extension's input event. One scan fills every field present, so fills arrive in batches.
+  window.__fills = [];
+  document.addEventListener("input", (e) => { if (!e.isTrusted) window.__fills.push({ id: e.target.id, t: performance.now() }); }, true);
+  window.runInsertions = (ms) => new Promise((resolve) => {
+    const host = document.getElementById("host");
+    const start = performance.now();
+    let n = 0;
+    const iv = setInterval(() => {
+      const i = document.createElement("input");
+      i.className = "burst";
+      i.id = "b" + (n++);
+      host.append(i);
+      if (performance.now() - start >= ms) { clearInterval(iv); const end = performance.now(); resolve({ inserted: n, elapsed: end - start, start, end }); }
+    }, 10);
+  });
+</script>
+</body>
+</html>

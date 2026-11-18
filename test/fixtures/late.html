@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>late content</title>
+<script src="/recorder.js"></script>
+</head>
+<body>
+<form id="f" action="/submitted" method="post">
+  <select id="latesel"><option value="">--</option></select>
+  <div id="host"></div>
+</form>
+<p id="ticker">0</p>
+<script>
+  const f = document.getElementById("f");
+  // A field inserted after load.
+  setTimeout(() => { const i = document.createElement("input"); i.id = "late1"; f.append(i); }, 300);
+  // A field inside an inserted subtree (the added node is the wrapper div).
+  setTimeout(() => {
+    const d = document.createElement("div");
+    const section = document.createElement("section");
+    const label = document.createElement("label");
+    const span = document.createElement("span");
+    const input = document.createElement("input");
+    input.id = "late2";
+    span.append(input); label.append("ID ", span); section.append(label); d.append(section);
+    document.getElementById("host").append(d);
+  }, 600);
+  // Options of an existing select arrive later.
+  setTimeout(() => {
+    const s = document.getElementById("latesel");
+    for (const [v, t] of [["late-opt-a", "Alpha"], ["late-opt-b-TEST", "Beta"]]) {
+      const o = document.createElement("option"); o.value = v; o.textContent = t; s.append(o);
+    }
+  }, 900);
+  // A second login step after a long pause.
+  setTimeout(() => { const i = document.createElement("input"); i.id = "late3"; f.append(i); }, 2000);
+  // Text-only churn the whole time.
+  let n = 0;
+  const tick = setInterval(() => { document.getElementById("ticker").textContent = String(++n); if (n > 40) clearInterval(tick); }, 50);
+</script>
+</body>
+</html>

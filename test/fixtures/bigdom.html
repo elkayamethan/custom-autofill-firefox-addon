@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>10k-node DOM</title>
+</head>
+<body>
+<div id="big"></div>
+<script>
+  // Exactly 10,000 elements under #big (plus the page's own few), with a login form near the end.
+  (() => {
+    const big = document.getElementById("big");
+    const frag = document.createDocumentFragment();
+    let count = 0;
+    for (let i = 0; count < 9990; i++) {
+      const sec = document.createElement("section"); count++;
+      sec.className = "s" + (i % 7);
+      for (let j = 0; j < 4 && count < 9990; j++) {
+        const d = document.createElement("div"); count++;
+        d.dataset.k = String(j);
+        const sp = document.createElement(j % 2 ? "span" : "a"); count++;
+        sp.textContent = "x";
+        d.append(sp);
+        sec.append(d);
+      }
+      frag.append(sec);
+    }
+    const form = document.createElement("form"); form.id = "login"; form.className = "login"; count++;
+    const add = (tag, attrs) => { const el = document.createElement(tag); Object.assign(el, attrs); form.append(el); count++; return el; };
+    add("input", { id: "idNumber", name: "id" });
+    add("input", { name: "user" });
+    add("input", { name: "password", type: "password" });
+    const sel = add("select", { id: "country" });
+    for (const v of ["a", "b"]) { const o = document.createElement("option"); o.value = v; sel.append(o); count++; }
+    frag.append(form);
+    big.append(frag);
+    window.__bigCount = count;
+  })();
+</script>
+</body>
+</html>

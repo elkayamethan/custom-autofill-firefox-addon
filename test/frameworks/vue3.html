@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Vue 3 fixture</title>
+</head>
+<body>
+<div id="app">
+  <form id="f" @submit.prevent>
+    <input id="text" name="text" v-model="text">
+    <input id="pass" name="pass" type="password" v-model="pass">
+    <textarea id="area" name="area" v-model="area"></textarea>
+    <select id="sel" name="sel" v-model="sel"><option value="">--</option><option value="fw-opt-b-TEST">Beta</option></select>
+    <pre id="state">{{ JSON.stringify({ text, pass, area, sel }) }}</pre>
+    <span id="tick">{{ tick }}</span>
+  </form>
+</div>
+<script src="/vendor/vue/vue.global.prod.js"></script>
+<script>
+  const vm = Vue.createApp({ data: () => ({ text: "", pass: "", area: "", sel: "", tick: 0 }) }).mount("#app");
+  window.__getState = () => ({ text: vm.text, pass: vm.pass, area: vm.area, sel: vm.sel });
+  window.__rerender = () => { vm.tick++; };
+  window.__framework = "Vue " + Vue.version;
+</script>
+</body>
+</html>

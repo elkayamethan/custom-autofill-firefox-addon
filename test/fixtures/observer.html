@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>observer triggers</title>
+<script src="/recorder.js"></script>
+</head>
+<body>
+<!-- Spec §5.6 step 5: only an added Element schedules a scan. #x starts unmatched (rules use
+     input.ready); making it match through an attribute, plus text, character-data and comment
+     churn, must not fill it. Adding a plain <div> later must. -->
+<form id="f" action="/submitted" method="post">
+  <input id="probe" name="probe">
+  <input id="x" name="x">
+</form>
+<p id="t">text</p>
+<div id="host"></div>
+<script>
+  window.__loadT = performance.now();
+  window.markReady = () => document.getElementById("x").classList.add("ready");
+  // Every 20 ms: character data, a Text node, a Comment node and an attribute change. No elements.
+  window.churnNonElements = (rounds) => new Promise((resolve) => {
+    const p = document.getElementById("t");
+    const x = document.getElementById("x");
+    let i = 0;
+    const iv = setInterval(() => {
+      p.firstChild.data = "cd " + i;
+      p.append(document.createTextNode(" +" + i));
+      p.append(document.createComment("c" + i));
+      x.setAttribute("data-n", String(i));
+      if (++i >= rounds) { clearInterval(iv); resolve(i); }
+    }, 20);
+  });
+  window.addElement = () => document.getElementById("host").append(document.createElement("div"));
+</script>
+</body>
+</html>

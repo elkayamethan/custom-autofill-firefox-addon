@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>frame host</title>
+</head>
+<body>
+<!-- frames.html?src=<url>&src=<url> embeds each src in an iframe. -->
+<input id="f" name="f">
+<div id="frames"></div>
+<script>
+  for (const src of new URLSearchParams(location.search).getAll("src")) {
+    const f = document.createElement("iframe");
+    f.src = src;
+    document.getElementById("frames").append(f);
+  }
+</script>
+</body>
+</html>

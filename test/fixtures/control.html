@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>capture controls</title>
+</head>
+<body>
+<!-- Used by the whole-run privacy test to prove that each capture path (BiDi log, browser
+     console, Firefox form history) works in the test profile. No recorder: the form must really submit. -->
+<form id="f" action="/submitted" method="post">
+  <input id="ctl" name="ctl">
+  <button id="go" type="submit">Go</button>
+</form>
+</body>
+</html>

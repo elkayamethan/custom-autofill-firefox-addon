@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>synchronous insert</title>
+<script src="/recorder.js"></script>
+</head>
+<body>
+<form id="f" action="/submitted" method="post">
+  <input class="step" id="s1" name="s1">
+</form>
+<script>
+  // Like a framework that renders the next login step synchronously when the first field changes.
+  document.getElementById("s1").addEventListener("change", () => {
+    if (document.getElementById("s2")) return;
+    const next = document.createElement("input");
+    next.className = "step";
+    next.id = "s2";
+    next.name = "s2";
+    document.getElementById("f").append(next);
+  });
+</script>
+</body>
+</html>

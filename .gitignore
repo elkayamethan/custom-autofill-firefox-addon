@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+
+# Packaged and signed builds (web-ext build / sign output)
+web-ext-artifacts/
+*.xpi
+*.zip
+
+# Local tooling and scratch
+node_modules/
+.superpowers/
+.claude/settings.local.json
