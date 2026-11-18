@@ -15,7 +15,7 @@ A tiny Firefox add-on that automatically fills form fields you choose on HTTPS s
 ## Install
 
 - **Try it now (temporary):** open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on…** and select `extension/manifest.json`. Firefox removes temporary add-ons, along with their rules, when it restarts.
-- **Permanent:** this needs a copy signed by Mozilla, uploaded as a self-distributed ("On your own") add-on. That's the next step.
+- **Permanent:** install a copy signed by Mozilla (see [Signing and updating](#signing-and-updating)).
 
 ## Adding a rule
 
@@ -47,6 +47,24 @@ A tiny Firefox add-on that automatically fills form fields you choose on HTTPS s
 - Private windows are filled only if you allow it: about:addons → Custom Autofill → **Run in Private Windows**.
 - An app that changes its address without adding anything to the page is re-checked only when something new appears on the page.
 - Edits apply the next time a page loads.
+
+## Signing and updating
+
+Regular Firefox only installs add-ons signed by Mozilla. This one is signed as a self-distributed ("unlisted") add-on: it is never listed on addons.mozilla.org, and nobody else is offered it.
+
+1. **Build** the package: `npx web-ext build --source-dir extension`. This creates `web-ext-artifacts/custom_autofill-<version>.zip` (git-ignored).
+2. **Sign** it, either way:
+   - **Website:** go to https://addons.mozilla.org/developers/ and sign in with a Mozilla account. Mozilla may ask you to turn on two-step authentication and to accept its distribution agreement. Choose **Submit a New Add-on** → **On your own**, upload the zip and select Firefox (desktop) only. When asked whether you need to submit source code, answer **No**: the files are hand-written, and nothing is minified or generated. After automatic validation (usually minutes, at most 24 hours), download the signed `.xpi` from the version's page.
+   - **Command line:** create API credentials at https://addons.mozilla.org/developers/addon/api/key/ and run `npx web-ext sign --source-dir extension --channel unlisted --api-key <JWT issuer> --api-secret <JWT secret>`. The signed `.xpi` lands in `web-ext-artifacts/`. Keep the credentials out of the repo.
+3. **Install:** drag the `.xpi` onto a Firefox window, or use about:addons → gear menu → **Install Add-on From File…**.
+
+**Updating:**
+1. Raise `version` in `extension/manifest.json`. Every upload needs a version number that has never been used before, even by a deleted upload.
+2. Run the tests and rebuild.
+3. Upload the zip as a new version of the same add-on: the add-on's page in the Developer Hub → **Upload New Version**, or run `web-ext sign` again.
+4. Install the new `.xpi` over the old one. Rules and site access are kept.
+
+Never change the add-on's ID (`browser_specific_settings.gecko.id`). Firefox would treat it as a different add-on, and your rules would not carry over.
 
 ## Development
 

@@ -11,6 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Real React 18/19 and Vue 3 tests (skipped when the env var is unset; the library builds are never committed): `FRAMEWORK_LIBS=<dir> node test/run.mjs`
 - Other env vars: `EXTENSION_DIR` (test a mutant copy), `FIREFOX_BIN`, `TEST_TMPDIR`, `RESULTS_JSON`
 - Lint, which must stay at 0 errors, warnings and notices: `npx web-ext lint --source-dir extension`
+- Signing package: `npx web-ext build --source-dir extension` creates `web-ext-artifacts/custom_autofill-<version>.zip` (git-ignored). Signing steps are in the README.
 - There is no build step and there are no dependencies. Requires Node 24+ and Firefox (default `/Applications/Firefox.app`).
 
 ## Hard constraints (owner requirements; never relax)
@@ -35,11 +36,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - The harness (`test/lib/`) drives Firefox over WebDriver BiDi using Node built-ins only. Only `input.performActions` clicks and keys pass the permission user-gesture gate. The harness sets `MOZ_REMOTE_ALLOW_SYSTEM_ACCESS=1` (needed for moz-extension pages and chrome-scope checks), on the throwaway instance only.
 - Work test-first: add a failing end-to-end test, then run the full suite. Run one test Firefox at a time. Afterwards `pgrep -fl "firefox.*--headless"` must print nothing; never touch the owner's normal Firefox.
-- A real browser restart can't be tested with an unsigned temporary add-on; that check needs the signed XPI.
+- A real browser restart can't be automated with an unsigned temporary add-on. The owner verified it manually with the signed 1.0.0.
 
-## Status (2026-11-18)
+## Status
 
-v1.0.0 is built and verified: 51/51 end-to-end tests pass and lint is clean. Next step: sign on AMO as unlisted/self-distributed. Each signed upload needs a new version, and there is no `update_url`.
+v1.0.0 (51/51 end-to-end tests, lint clean) is signed on AMO as unlisted/self-distributed and installed in the owner's Firefox, where it works across restarts. Any change needs a version bump before re-signing; there is no `update_url`.
 
 Known minor gaps left as is:
 - An SPA route change that inserts no element is not re-checked.
